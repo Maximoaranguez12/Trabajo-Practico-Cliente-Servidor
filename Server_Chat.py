@@ -1,10 +1,10 @@
-#poner conectexecption error para saber si del otro lado el cliente se desconecto o viceversa.
+#Poner conectexecption error para saber si del otro lado el cliente hay desconexión o viceversa.
 import time
 import requests # type: ignore
 import socket
 import threading
 # Diccionario global para registrar a los clientes activos:
-# Estructura -> socket_cliente: "nombre_de_usuario"
+# Estructura de socket_cliente: "nombre_de_usuario"
 clientes_activos = {}
 # Candado para evitar que dos hilos modifiquen el diccionario al mismo tiempo
 clientes_lock = threading.Lock()
@@ -55,7 +55,7 @@ def atender_cliente(client_socket, address):
                 try:
                     # 1. Generamos el número único de tiempo para romper el caché de red
                     timestamp_unico = time.time()
-                    url_api = f"https://thecatapi.com{timestamp_unico}"
+                    url_api = "https://api.thecatapi.com/v1/images/search"
                     
                     # 2. SOLUCIÓN CLAVE: Añadimos un User-Agent real en los Headers para que la API no nos bloquee
                     cabeceras = {
@@ -92,7 +92,7 @@ def atender_cliente(client_socket, address):
                     # Esto te mostrará el motivo técnico real en la terminal donde corre tu server.py
                     print(f"[-] ERROR DETECTADO EN /gato: {e}")
                     client_socket.send("[SISTEMA] Error interno al procesar el comando.".encode("utf-8"))
-            continue
+                continue
 
                 
             # COMANDO: /usuarios (Muestra la lista de conectados)
