@@ -3,6 +3,7 @@ import time
 import requests # type: ignore
 import socket
 import threading
+import db
 # Diccionario global para registrar a los clientes activos:
 # Estructura de socket_cliente: "nombre_de_usuario"
 clientes_activos = {}
