@@ -25,22 +25,49 @@ def atender_cliente(client_socket, address):
     print(f"[*] Nueva conexión desde {address}")
     
     # --- PROCESO DE AUTENTICACIÓN ---
-    client_socket.send("AUTENTICACION: Introduce tu nombre de usuario: ".encode("utf-8"))
+    username = None
     try:
-        username = client_socket.recv(1024).decode("utf-8").strip()
-        if not username:
-            username = f"Anonimo_{address[1]}" # Por si manda vacío
+        while username is None:
+            client_socket.send("¿Tenés cuenta? Escribe 'login' o 'registrar': ".encode("utf-8"))
+            opcion = client_socket.recv(1024).decode("utf-8").strip().lower()
+
+            client_socket.send("Usuario: ".encode("utf-8"))
+            user_input = client_socket.recv(1024).decode("utf-8").strip()
+
+            client_socket.send("Contraseña: ".encode("utf-8"))
+            pass_input = client_socket.recv(1024).decode("utf-8").strip()
+
+            if opcion == "registrar":
+                if db.existe_usuario(user_input):
+                    client_socket.send("[ERROR] Ese usuario ya existe. Probá de nuevo.\n".encode("utf-8"))
+                    continue
+                db.registrar_usuario(user_input, pass_input)
+                username = user_input
+                client_socket.send(f"[OK] Usuario {username} registrado correctamente.\n".encode("utf-8"))
+
+            elif opcion == "login":
+                if db.verificar_usuario(user_input, pass_input):
+                    username = user_input
+                    client_socket.send(f"[OK] Bienvenido de nuevo, {username}.\n".encode("utf-8"))
+                else:
+                    client_socket.send("[ERROR] Usuario o contraseña incorrectos.\n".encode("utf-8"))
+            else:
+                client_socket.send("[ERROR] Opción inválida. Escribe 'login' o 'registrar'.\n".encode("utf-8"))
+
     except:
         client_socket.close()
         return
 
-    # Registrar al usuario de forma segura usando el Lock
+    # Registrar al usuario activo
     with clientes_lock:
         clientes_activos[client_socket] = username
 
-    # Avisar a todos que alguien entró
+    # Registrar conexión en la base de datos
+    db.registrar_conexion(username, "conexion")
+
     Broadcast(f"\n[SISTEMA] {username} se ha unido al chat.\n")
     client_socket.send(f"Bienvenido {username}. Comandos: '/' para salir, '/usuarios' para ver lista.\n".encode("utf-8"))
+
 
     # --- BUCLE PRINCIPAL DEL CHAT ---
     while True:
@@ -113,7 +140,8 @@ def atender_cliente(client_socket, address):
     with clientes_lock:
         if client_socket in clientes_activos:
             del clientes_activos[client_socket]
-            
+
+    db.registrar_conexion(username, "desconexion")
     Broadcast(f"\n[SISTEMA] {username} ha salido del chat.\n")
     print(f"[*] Conexión con {username} ({address}) finalizada.")
     client_socket.close()
