@@ -82,7 +82,6 @@ def atender_cliente(client_socket, address):
             if data == "/gato":
                 try:
                     # 1. Generamos el número único de tiempo para romper el caché de red
-                    timestamp_unico = time.time()
                     url_api = "https://api.thecatapi.com/v1/images/search"
                     
                     # 2. SOLUCIÓN CLAVE: Añadimos un User-Agent real en los Headers para que la API no nos bloquee
@@ -105,6 +104,7 @@ def atender_cliente(client_socket, address):
                             # 4. Buscamos la clave 'url' de forma segura dentro del diccionario
                             if isinstance(primer_gatito, dict) and "url" in primer_gatito:
                                 url_imagen_gato = primer_gatito["url"]
+                                db.guardar_api_call(username, "/gato", url_imagen_gato)
                                 msg_gato = f"\n[🐱 MICHIS DE LA API] {username} invocó un gato: {url_imagen_gato}\n"
                                 Broadcast(msg_gato)
                             else:
@@ -133,7 +133,8 @@ def atender_cliente(client_socket, address):
             # MENSAJE NORMAL: Se transmite a todos
             print(f"[{username}]: {data}")
             Broadcast(f"[{username}]: {data}", socket_remitente=client_socket)
-            
+            db.guardar_mensaje(username, data)
+
         except ConnectionResetError:
             break
 
