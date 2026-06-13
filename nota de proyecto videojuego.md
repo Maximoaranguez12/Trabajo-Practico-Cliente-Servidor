@@ -1,0 +1,1 @@
+hacer un videjuego en python, no muy complejo. Ofrece una pantalla de pixeles, un lienzo donde se puede poner lo que vos quieras,acceso al joystick, y enviar y recibir datos de lo que estamos jugando mediante una función. No poner mucha información. 
