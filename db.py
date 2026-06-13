@@ -1,15 +1,16 @@
-import mysql.connector
+import psycopg2
 import bcrypt
 
 DB_CONFIG = {
     "host": "localhost",
+    "port": "5432",
     "database": "chat_db",
-    "user": "root",          # ← tu usuario de MySQL
-    "password": "tu_contraseña"  # ← tu contraseña de MySQL
+    "user": "postgres",
+    "password": "tu_contraseña"  # ← la que pusiste al instalar PostgreSQL
 }
 
 def conectar():
-    return mysql.connector.connect(**DB_CONFIG)
+    return psycopg2.connect(**DB_CONFIG)
 
 
 # --- USUARIOS ---
