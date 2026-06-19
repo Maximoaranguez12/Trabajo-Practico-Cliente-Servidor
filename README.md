@@ -16,7 +16,7 @@ Aplicación de chat grupal mediante sockets TCP, implementada en Python con arqu
 
 El sistema cuenta con:
 
-- Autenticación de usuarios (registro y login) contra una base de datos MySQL.
+- Autenticación de usuarios (registro y login) contra una base de datos PostgreSQL.
 - Chat grupal con mensajes broadcast (mensaje de un usuario visible para todos).
 - Sistema de comandos mediante `/`.
 - Comando `/usuarios` para listar los usuarios conectados.
@@ -31,7 +31,7 @@ El sistema cuenta con:
 - **Sockets** (`socket`) — comunicación TCP cliente-servidor
 - **Threading** (`threading`) — atención concurrente de múltiples clientes
 - **Requests** (`requests`) — consumo de API pública externa
-- **MySQL** (`mysql-connector-python`) — persistencia de datos
+- **PostgreSQL** (`psycopg2-binary`) — persistencia de datos
 - **Bcrypt** (`bcrypt`) — hash seguro de contraseñas
 
 ---
@@ -54,59 +54,54 @@ Trabajo-Practico-Cliente-Servidor/
 ### 1. Instalar librerías de Python
 
 ```bash
-pip install mysql-connector-python bcrypt requests
+pip install psycopg2-binary bcrypt requests
 ```
 
-### 2. Crear la base de datos en MySQL Workbench
+### 2. Crear la base de datos en pgAdmin
 
-Ejecutar el siguiente script SQL:
+Crear la base de datos `chat_db` desde pgAdmin (clic derecho en "Databases" → Create → Database), y luego ejecutar el siguiente script SQL en una Query Tool sobre esa base:
 
 ```sql
-CREATE DATABASE chat_db;
-USE chat_db;
-
 CREATE TABLE usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE mensajes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
     contenido TEXT NOT NULL,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE conexiones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
     tipo VARCHAR(15) NOT NULL,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE api_calls (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
     comando VARCHAR(50) NOT NULL,
     url_resultado TEXT,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
 ### 3. Configurar credenciales
 
-En `db.py`, completar usuario y contraseña de MySQL:
+En `db.py`, completar usuario y contraseña de PostgreSQL:
 
 ```python
 DB_CONFIG = {
     "host": "localhost",
+    "port": "5432",
     "database": "chat_db",
-    "user": "root",
+    "user": "postgres",
     "password": "tu_contraseña"
 }
 ```
