@@ -6,7 +6,7 @@ DB_CONFIG = {
     "port": "5432",
     "database": "chat_db",
     "user": "postgres",
-    "password": "post12"  
+    "password": "contraseña_usuario"  
 }
 
 def conectar():
