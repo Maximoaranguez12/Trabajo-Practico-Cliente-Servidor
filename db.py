@@ -6,7 +6,7 @@ DB_CONFIG = {
     "port": "5432",
     "database": "chat_db",
     "user": "postgres",
-    "password": "tu_contraseña"  # ← la que pusiste al instalar PostgreSQL
+    "password": "post12"  
 }
 
 def conectar():
