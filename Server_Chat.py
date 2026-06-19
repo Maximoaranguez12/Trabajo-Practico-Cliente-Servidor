@@ -3,7 +3,7 @@ import time
 import requests # type: ignore
 import socket
 import threading
-import db
+import db_example #
 # Diccionario global para registrar a los clientes activos:
 # Estructura de socket_cliente: "nombre_de_usuario"
 clientes_activos = {}
@@ -39,15 +39,15 @@ def atender_cliente(client_socket, address):
             pass_input = client_socket.recv(1024).decode("utf-8").strip()
 
             if opcion == "registrar":
-                if db.existe_usuario(user_input):
+                if db_example.existe_usuario(user_input) :
                     client_socket.send("[ERROR] Ese usuario ya existe. Probá de nuevo.\n".encode("utf-8"))
                     continue
-                db.registrar_usuario(user_input, pass_input)
+                db_example.registrar_usuario(user_input, pass_input)
                 username = user_input
                 client_socket.send(f"[OK] Usuario {username} registrado correctamente.\n".encode("utf-8"))
 
             elif opcion == "login":
-                if db.verificar_usuario(user_input, pass_input):
+                if  db_example.verificar_usuario(user_input, pass_input):
                     username = user_input
                     client_socket.send(f"[OK] Bienvenido de nuevo, {username}.\n".encode("utf-8"))
                 else:
@@ -64,7 +64,7 @@ def atender_cliente(client_socket, address):
         clientes_activos[client_socket] = username
 
     # Registrar conexión en la base de datos
-    db.registrar_conexion(username, "conexion")
+    db_example.registrar_conexion(username, "conexion")
 
     Broadcast(f"\n[SISTEMA] {username} se ha unido al chat.\n")
     client_socket.send(f"Bienvenido {username}. Comandos: '/' para salir, '/usuarios' para ver lista de usuarios,'/gato' para ver imágen de gato.\n".encode("utf-8"))
@@ -104,7 +104,7 @@ def atender_cliente(client_socket, address):
                             # 4. Buscamos la clave 'url' de forma segura dentro del diccionario
                             if isinstance(primer_gatito, dict) and "url" in primer_gatito:
                                 url_imagen_gato = primer_gatito["url"]
-                                db.guardar_api_call(username, "/gato", url_imagen_gato)
+                                db_example.guardar_api_call(username, "/gato", url_imagen_gato)
                                 msg_gato = f"\n[🐱 MICHIS DE LA API] {username} invocó un gato: {url_imagen_gato}\n"
                                 Broadcast(msg_gato)
                             else:
@@ -133,8 +133,7 @@ def atender_cliente(client_socket, address):
             # MENSAJE NORMAL: Se transmite a todos
             print(f"[{username}]: {data}")
             Broadcast(f"[{username}]: {data}", socket_remitente=client_socket)
-            db.guardar_mensaje(username, data)
-
+            db_example.guardar_mensaje(username, data)
         except ConnectionResetError:
             break
 
@@ -143,7 +142,7 @@ def atender_cliente(client_socket, address):
         if client_socket in clientes_activos:
             del clientes_activos[client_socket]
 
-    db.registrar_conexion(username, "desconexion")
+    db_example.registrar_conexion(username, "desconexion")
     Broadcast(f"\n[SISTEMA] {username} ha salido del chat.\n")
     print(f"[*] Conexión con {username} ({address}) finalizada.")
     client_socket.close()
