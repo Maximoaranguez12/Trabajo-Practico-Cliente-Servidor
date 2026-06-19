@@ -67,7 +67,7 @@ def atender_cliente(client_socket, address):
     db.registrar_conexion(username, "conexion")
 
     Broadcast(f"\n[SISTEMA] {username} se ha unido al chat.\n")
-    client_socket.send(f"Bienvenido {username}. Comandos: '/' para salir, '/usuarios' para ver lista de usuarios, '/gatos' para ver imágenes de gatos.\n".encode("utf-8"))
+    client_socket.send(f"Bienvenido {username}. Comandos: '/' para salir, '/usuarios' para ver lista de usuarios,'/gatos' para ver imágenes de gatos.\n".encode("utf-8"))
 
 
     # --- BUCLE PRINCIPAL DEL CHAT ---
